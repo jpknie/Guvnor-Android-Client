@@ -1,0 +1,39 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<PreferenceScreen xmlns:android = "http://schemas.android.com/apk/res/android">
+    <PreferenceCategory 
+    	android:orderingFromXml="true" 
+    	android:key="updating_category" 
+    	android:enabled="true" 
+    	android:title="Updating Preferences">
+        	<CheckBoxPreference 
+        		android:key="enable_updates" 
+        		android:title="Enable updates" 
+        		android:summary="Enable or disable updates">
+       	 	</CheckBoxPreference>
+        	<ListPreference
+           	 	android:key="updates_interval"
+           	 	android:title="Updates interval"
+            	android:summary="Define how often updates will be performed"
+            	android:defaultValue="60000"
+            	android:entries="@array/updateInterval"
+            	android:entryValues="@array/updateIntervalValues"
+            	android:dependency="enable_updates"
+        	/>
+    </PreferenceCategory>
+    <PreferenceCategory
+    	android:orderingFromXml="true"
+    	android:key="server_category"
+    	android:enabled="true"
+    	android:title="Server settings">
+        <EditTextPreference 
+        	android:title="Server address" 
+        	android:key="server_string"
+        	android:defaultValue="http://">
+        </EditTextPreference>
+        <EditTextPreference
+        	android:title="Server port"
+        	android:key="port_string"
+        	android:defaultValue="8080">
+        </EditTextPreference>
+    </PreferenceCategory>
+</PreferenceScreen>
