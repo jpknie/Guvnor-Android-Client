@@ -38,16 +38,15 @@ public class JSONParserHandler implements ParserHandler {
 				p.description = packageObject.getString("description");
 				p.version = packageObject.getLong("version");
 				String assets = packageObject.getString("assets");
-				/** This is ugly kludge */
-				if(assets.charAt(0) == '[') {	// we have array of assets
-					JSONArray arrayOfAssets = packageObject.getJSONArray("assets");
-					for(int j = 0; j < arrayOfAssets.length(); j++)
-					{
-						p.assets.add(Uri.parse(arrayOfAssets.getString(j)));
+				if(assets != null) {
+					/** This is ugly kludge */
+					if(assets.charAt(0) == '[') {	// we have array of assets
+						JSONArray arrayOfAssets = packageObject.getJSONArray("assets");
+						for(int j = 0; j < arrayOfAssets.length(); j++) {
+							p.assets.add(Uri.parse(arrayOfAssets.getString(j)));
+						}
 					}
-				}
-				else {	/** we have just one (or zero) asset(s) */
-					if(assets != null) {
+					else {	/** we have just one (or zero) asset(s) */
 						p.assets.add(Uri.parse(assets));
 					}
 				}
