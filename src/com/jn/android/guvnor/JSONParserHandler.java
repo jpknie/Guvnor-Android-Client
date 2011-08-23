@@ -51,7 +51,6 @@ public class JSONParserHandler implements ParserHandler {
 						p.assets.add(Uri.parse(assets));
 					}
 				}
-				//int assetsLength = assetsObject.length();
 				packageList.add(p);
 			}
 			
