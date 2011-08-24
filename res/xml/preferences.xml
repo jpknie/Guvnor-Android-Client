@@ -36,4 +36,15 @@
         	android:defaultValue="8080">
         </EditTextPreference>
     </PreferenceCategory>
+    <PreferenceCategory
+    	android:orderingFromXml="true"
+    	android:key="misc_category"
+    	android:enabled="true"
+    	android:title="Miscellaneous">
+    	<CheckBoxPreference 
+        		android:key="enable_compression" 
+        		android:title="Enable compression" 
+        		android:summary="Enable or disable compression">
+       	 </CheckBoxPreference>
+    </PreferenceCategory>
 </PreferenceScreen>

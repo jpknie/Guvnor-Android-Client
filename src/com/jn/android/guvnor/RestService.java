@@ -37,12 +37,23 @@ public class RestService extends Service implements RestResultReceiver {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+	public synchronized int onStartCommand(Intent intent, int flags, int startId) {
+	
 		/** Run the worker thread here */
 		Log.v(_TAG,"onStartCommand");
 		ServiceHelper.ServiceCallback bc = intent.getParcelableExtra(CALLBACK_ID);
+	
+		Processor p = new Processor("http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "application/json", false);
+
+		try {
+			p.setMediaType("application/json");
+			
+		}
+		catch(UnknownMediaTypeException umte) {
+			
+		}
+		p.start();
 		bc.doSomething(0);
-		new Processor("http://192.168.1.101:8100/subjects").start();
 		return Service.START_STICKY;
 	}
 

@@ -6,21 +6,21 @@ import android.net.Uri;
 
 /** Defines package resource for Guvnor */
 public class Package {
-	private String title;
-	private String description;
-	private long version;
-	private String checkInComment;
-	/* private Category category */
-	private Uri binaryLink;
-	private Uri sourceLink;
-	private Set<Uri> assets;
-	private Package.PackageMetaData metaData;
+	public String title;
+	public String description;
+	public long version;
+	public String checkInComment;
+	/* public Category category */
+	public Uri binaryLink;
+	public Uri sourceLink;
+	public Set<Uri> assets;
+	public Package.PackageMetaData metaData;
 	
 	class PackageMetaData {
-		private String uuid;
-		private Date created;
-		private Date lastModified;
-		private String lastContributor;
-		private String state;
+		public String uuid;
+		public Date created;
+		public Date lastModified;
+		public String lastContributor;
+		public String state;
 	}
 }

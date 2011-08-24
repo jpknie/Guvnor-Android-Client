@@ -68,7 +68,6 @@ public class Processor extends Thread {
 	@Override
 	public void run() {
 		try {
-			Log.v(_TAG, "Processor runs");
 			String response = RestMethod.doGet(url, mediaType, useGzipCompression);
 			parserHandler.parse(response);
 		} 

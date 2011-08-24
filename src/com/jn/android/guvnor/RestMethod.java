@@ -56,7 +56,6 @@ public class RestMethod {
 			nameValuePairs.add(new BasicNameValuePair("username","your user name");
 	    	nameValuePairs.add(new BasicNameValuePair("password","your password");
 		*/
-		//postMethod.setEntity()
 			HttpClient hc = new DefaultHttpClient();
 			HttpResponse response = hc.execute(getMethod);
 			HttpEntity entity = response.getEntity();

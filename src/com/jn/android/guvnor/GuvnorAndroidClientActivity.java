@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class GuvnorAndroidClientActivity extends Activity implements OnClickListener, ResultHandler {
+public class GuvnorAndroidClientActivity extends Activity implements ResultHandler {
 	
 	private static final String _TAG="GuvnorClientActivity";
    
@@ -24,13 +24,6 @@ public class GuvnorAndroidClientActivity extends Activity implements OnClickList
         ServiceHelper serviceHelper = ServiceHelper.getInstance();
         serviceHelper.setContext(this);
         serviceHelper.registerResultHandler(this);
-        
-       
-    }
-    
-    /** From OnClickListener */
-    public void onClick(View view) {
-    	ServiceHelper.getInstance().doService();
     }
     
     /** From ResultHandler */
@@ -43,6 +36,7 @@ public class GuvnorAndroidClientActivity extends Activity implements OnClickList
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, 0, 0, "Show settings");
+		menu.add(Menu.NONE, 1, 1, "Update");
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -52,6 +46,9 @@ public class GuvnorAndroidClientActivity extends Activity implements OnClickList
 			case 0: {
 				startActivity(new Intent(this, ShowSettingsActivity.class));
 				return true;
+			}
+			case 1: {
+				ServiceHelper.getInstance().doService();
 			}
 		}
 		return false;

@@ -4,7 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
-
+  	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".GuvnorAndroidClientActivity"
                   android:label="@string/app_name">
@@ -13,6 +13,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+       <activity android:name=".ShowSettingsActivity"></activity>
+	<service 
+		android:name = "com.jn.android.guvnor.RestService" 
+		enabled = "true"	
+	/>
+	<provider 
+		android:name = "com.jn.android.guvnor.DataProvider"
+		android:authorities = "com.jn.android.guvnor.dataprovider" 
+	/>
     </application>
 </manifest>
