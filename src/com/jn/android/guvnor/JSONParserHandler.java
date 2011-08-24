@@ -1,8 +1,8 @@
 package com.jn.android.guvnor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +37,17 @@ public class JSONParserHandler implements ParserHandler {
 				p.checkInComment = packageObject.getString("checkInComment");
 				p.description = packageObject.getString("description");
 				p.version = packageObject.getLong("version");
+				
+				/** Parse metadata */
+				JSONObject metadataObject = packageObject.getJSONObject("metadata");
+				String created = metadataObject.getString("created");
+				String lastModified = metadataObject.getString("lastModified");
+				String state = metadataObject.getString("state");
+				String uuid = metadataObject.getString("uuid");
+				String lastContributor = metadataObject.getString("lastContributor");
+				p.addMetaData(uuid, created, lastModified, lastContributor, state);
+				
+				
 				String assets = packageObject.getString("assets");
 				if(assets != null) {
 					/** This is ugly kludge */

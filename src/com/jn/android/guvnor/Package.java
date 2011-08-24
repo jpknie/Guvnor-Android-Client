@@ -16,10 +16,18 @@ public class Package {
 	public Set<Uri> assets;
 	public Package.PackageMetaData metaData;
 	
+	public void addMetaData(String uuid, String created, String lastModified, String lastContributor, String state) {
+		metaData.uuid = uuid;
+		metaData.created = created;
+		metaData.lastModified = lastModified;
+		metaData.lastContributor = lastContributor;
+		metaData.state = state;
+	}
+	
 	class PackageMetaData {
 		public String uuid;
-		public Date created;
-		public Date lastModified;
+		public String created;
+		public String lastModified;
 		public String lastContributor;
 		public String state;
 	}
