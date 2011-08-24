@@ -52,15 +52,6 @@ public class JSONParserHandler implements ParserHandler {
 				}
 				packageList.add(p);
 			}
-			
-			for(Package testPackage: packageList) {
-				Log.v(_TAG,testPackage.title);
-				Log.v(_TAG,testPackage.description);
-				Log.v(_TAG,"assets:");
-				for(Uri assetUri: testPackage.assets) {
-					Log.v(_TAG, assetUri.toString());
-				}
-			}
 		} 
 		catch(JSONException je) {
 			Log.v(_TAG, "JSONException " + je.getMessage());

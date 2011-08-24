@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -18,14 +20,10 @@ import android.util.Log;
 
 public class RestMethod {
 	public static final String _TAG = "RestMethod";
+	public String acceptType;
 	
-	private String convertStreamToString(InputStream is) {
-        /*
-         * To convert the InputStream to String we use the BufferedReader.readLine()
-         * method. We iterate until the BufferedReader return null which means
-         * there's no more data to read. Each line will appended to a StringBuilder
-         * and returned as String.
-         */
+	private static String convertStreamToString(InputStream is) {
+      
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
  
@@ -46,12 +44,12 @@ public class RestMethod {
         return sb.toString();
     }
 
-	public void doGet(String url) {
+	public static String doGet(String url, String acceptType, boolean useGzip) throws ClientProtocolException, IOException, URISyntaxException {
 		try {
 			URI uri = new URI(url);
-		
-		HttpGet getMethod = new HttpGet(uri);
-		getMethod.addHeader("Accept","application/json");
+			HttpGet getMethod = new HttpGet(uri);
+			getMethod.addHeader("Accept", acceptType);
+			if(useGzip)	getMethod.addHeader("Accept-Encoding", "gzip");
 
 		/*
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -59,22 +57,31 @@ public class RestMethod {
 	    	nameValuePairs.add(new BasicNameValuePair("password","your password");
 		*/
 		//postMethod.setEntity()
-		HttpClient hc = new DefaultHttpClient();
-
+			HttpClient hc = new DefaultHttpClient();
 			HttpResponse response = hc.execute(getMethod);
 			HttpEntity entity = response.getEntity();
+			
 			if(entity != null) {
 				InputStream inStream = entity.getContent();
+				Header contentEncoding = response.getFirstHeader("Content-Encoding");
+				if(contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+					inStream = new GZIPInputStream(inStream);
+				}
 				String result = convertStreamToString(inStream);
-				Log.v(_TAG, "HttpPostMethodResult" + result);
+				return result;
 			}
+			
+		/** Re-throw any exceptions and handle them "upper level" */
 		} catch(ClientProtocolException e) {
-			Log.v(_TAG,"clientprotocolexception");
+			throw e;
 		}
 		catch(IOException ioe) {
-			
+			throw ioe;
 		}
-		catch(URISyntaxException use) {}
+		catch(URISyntaxException use) {
+			throw use;
+		}
+		return null;
 	}
 
 }
