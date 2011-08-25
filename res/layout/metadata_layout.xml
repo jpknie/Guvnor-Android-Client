@@ -1,0 +1,13 @@
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/linearLayout1" android:orientation="vertical" android:layout_height="fill_parent" android:layout_width="fill_parent">
+        <TextView android:id="@+id/uuidLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="UUID"></TextView>
+        <TextView android:id="@+id/uuidSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView"></TextView>
+        <TextView android:id="@+id/stateLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="State"></TextView>
+        <TextView android:id="@+id/stateSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView"></TextView>
+        <TextView android:id="@+id/createdLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="Created"></TextView>
+        <TextView android:id="@+id/createdSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView"></TextView>
+        <TextView android:id="@+id/lastContribLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="Last Contributor"></TextView>
+        <TextView android:id="@+id/lastContribSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView"></TextView>
+        <TextView android:id="@+id/lastModifiedLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="Last Modified"></TextView>
+        <TextView android:id="@+id/lastModifiedSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView"></TextView>
+    </LinearLayout>

@@ -2,4 +2,14 @@
 <resources>
     <string name="hello">Hello World, GuvnorAndroidClientActivity!</string>
     <string name="app_name">Guvnor Android Client</string>
+    
+    <!-- Databse string resources -->
+    <string name="package_table_name">packages</string>
+    <string name="metadata_table_name">metadata</string>
+    
+    <!-- Package table's columns -->
+	<string name="column_package_title">title</string>
+	<string name="column_package_description">description</string>
+	<string name="column_package_checkInComment">checkInComment</string>
+	<string name="column_package_version">version</string>
 </resources>
