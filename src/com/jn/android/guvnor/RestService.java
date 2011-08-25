@@ -1,5 +1,5 @@
 package com.jn.android.guvnor;
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -8,7 +8,7 @@ interface RestResultReceiver {
 	public void onResultReceived(int resultCode);
 }
 
-public class RestService extends Service implements RestResultReceiver {
+public class RestService extends IntentService implements RestResultReceiver {
 	
 	public static final String _TAG = "RestService";
 	
@@ -21,11 +21,11 @@ public class RestService extends Service implements RestResultReceiver {
 		STATE_COMPLETE	/** Service completed the task */
 	}
 	
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
+	public RestService() {
+		super("RESTService");
 	}
-
+	
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -37,13 +37,13 @@ public class RestService extends Service implements RestResultReceiver {
 	}
 
 	@Override
-	public synchronized int onStartCommand(Intent intent, int flags, int startId) {
-	
+	protected void onHandleIntent(Intent intent) 
+	{
 		/** Run the worker thread here */
 		Log.v(_TAG,"onStartCommand");
 		ServiceHelper.ServiceCallback bc = intent.getParcelableExtra(CALLBACK_ID);
 	
-		Processor p = new Processor("http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "application/json", false);
+		Processor p = new Processor(getBaseContext(), "http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "application/json", false);
 
 		try {
 			p.setMediaType("application/json");
@@ -54,11 +54,9 @@ public class RestService extends Service implements RestResultReceiver {
 		}
 		p.start();
 		bc.doSomething(0);
-		return Service.START_STICKY;
 	}
 
-	/** From RestResultReceiver (maybe called by multiple threads, so make synchronized) */
-	public synchronized void onResultReceived(int resultCode) {
+	public void onResultReceived(int resultCode) {
 		
 	}
 	
