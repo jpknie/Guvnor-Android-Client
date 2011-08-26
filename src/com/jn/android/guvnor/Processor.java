@@ -32,8 +32,13 @@ class ServiceRequestException extends Throwable {
 	}
 }
 
-class UnknownMediaTypeException extends Throwable {
-	private static final String errorMessage = "Given mediatype isn't supported or badly formed";
+class UnknownItemTypeException extends Throwable {
+private String errorMessage;
+	
+	public UnknownItemTypeException(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+	
 	public String getErrorMessage() {
 		return errorMessage;
 	}
@@ -45,25 +50,25 @@ public class Processor extends Thread {
 	private static Map<String, ParserHandler> handlers;
 	private Context context;
 	private String url;
-	private String mediaType;
+	private String itemType;
 	private ParserHandler parserHandler;
 	private boolean useGzipCompression;
 	
 	static {
 		handlers = new HashMap<String, ParserHandler>();
-		handlers.put("application/json", new JSONParserHandler());
+		handlers.put("packages", new PackageParserHandler());
 	}
 	
-	public Processor(Context ctx, String url, String mediaType, boolean useGzipCompression) {
+	public Processor(Context ctx, String url, String itemType, boolean useGzipCompression) {
 		this.context = ctx;
 		this.url = url;
-		this.mediaType = mediaType;
+		this.itemType = itemType;
 		this.useGzipCompression = useGzipCompression;
 	}
 	
-	public void setMediaType(String mt) throws UnknownMediaTypeException {
-		mediaType = mt;
-		parserHandler = handlers.get(mediaType);
+	public void setItemType(String it) throws UnknownItemTypeException {
+		itemType = it;
+		parserHandler = handlers.get(itemType);
 	}
 	
 	public void setUrl(String address) {
@@ -88,7 +93,7 @@ public class Processor extends Thread {
 	@Override
 	public void run() {
 		try {
-			String response = RestMethod.doGet(url, mediaType, useGzipCompression);
+			String response = RestMethod.doGet(url, useGzipCompression);
 			Package[] packages = (Package[])parserHandler.parse(response);
 			if(packages.length > 0) {
 				ContentResolver cr = context.getContentResolver();

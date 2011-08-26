@@ -3,6 +3,7 @@ package com.jn.android.guvnor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,21 +13,23 @@ import android.net.Uri;
 import android.util.Log;
 import org.json.JSONObject;
 
-public class JSONParserHandler implements ParserHandler {
-	private static final String _TAG = "JSONParserHandler";
-	private JSONArray jArray;
+public class PackageParserHandler implements ParserHandler<Package> {
+	private static final String _TAG = "PackageParserHandler";
 	
-	public JSONParserHandler() {}
+	public PackageParserHandler() {}
 	
-	public void parse(String content) throws ParserException {
+	public Package[] parse(String content) throws ParserException {
+		//ArrayList<Package> packageList = new ArrayList<Package>();
+		Package[] packageList = null;
+		
 		try {
-			Log.v(_TAG,"parser runs");
 			JSONObject jo = new JSONObject(content);
 			JSONArray packageArray = jo.getJSONArray("package");
 			
 			int len = packageArray.length();
-			if(len == 0) return;
-			ArrayList<Package> packageList = new ArrayList<Package>();
+			if(len == 0) return null;
+			packageList = new Package[len];
+			
 			for(int i = 0 ; i < len; i++) {
 				Package p = new Package();
 				p.assets = new LinkedHashSet<Uri>();
@@ -47,7 +50,6 @@ public class JSONParserHandler implements ParserHandler {
 				String lastContributor = metadataObject.getString("lastContributor");
 				p.addMetaData(uuid, created, lastModified, lastContributor, state);
 				
-				
 				String assets = packageObject.getString("assets");
 				if(assets != null) {
 					/** This is ugly kludge */
@@ -61,12 +63,13 @@ public class JSONParserHandler implements ParserHandler {
 						p.assets.add(Uri.parse(assets));
 					}
 				}
-				packageList.add(p);
+				packageList[i] = p;
 			}
 		} 
 		catch(JSONException je) {
 			Log.v(_TAG, "JSONException " + je.getMessage());
 		}
+		return packageList;
 	}
 	
 }
