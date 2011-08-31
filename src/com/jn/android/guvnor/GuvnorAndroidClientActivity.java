@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 public class GuvnorAndroidClientActivity extends ListActivity implements ResultHandler {
@@ -21,7 +22,8 @@ public class GuvnorAndroidClientActivity extends ListActivity implements ResultH
 	private static final String _TAG="GuvnorClientActivity";
 	private static final String[] listProjection = new String[] {
 			DataProvider.C_PACKAGE_ID,
-			DataProvider.C_PACKAGE_TITLE
+			DataProvider.C_PACKAGE_TITLE,
+			DataProvider.C_PACKAGE_DESCRIPTION
 	};
 	
 	
@@ -40,8 +42,8 @@ public class GuvnorAndroidClientActivity extends ListActivity implements ResultH
         							null,
         							null,
         							DataProvider.C_PACKAGE_ID);
-        String[] dataColumns = { DataProvider.C_PACKAGE_TITLE };
-        int[] viewIDs = { android.R.id.text1 };
+        String[] dataColumns = { DataProvider.C_PACKAGE_TITLE, DataProvider.C_PACKAGE_DESCRIPTION };
+        int[] viewIDs = { R.id.toptext, R.id.bottomtext };
         SimpleCursorAdapter simpleCursorAdapter = 
         		new SimpleCursorAdapter(this, 
         		R.layout.packagelist_item, 
@@ -49,7 +51,7 @@ public class GuvnorAndroidClientActivity extends ListActivity implements ResultH
         		dataColumns,
         		viewIDs);
         setListAdapter(simpleCursorAdapter);
-    }
+	}
     
     /** From ResultHandler */
     public void handleResult(int resultCode) {
@@ -62,6 +64,13 @@ public class GuvnorAndroidClientActivity extends ListActivity implements ResultH
 		menu.add(Menu.NONE, 0, 0, "Show settings");
 		menu.add(Menu.NONE, 1, 1, "Update");
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(GuvnorAndroidClientActivity.this, MetadataActivity.class);
+		intent.putExtra("itemId", id);
+		GuvnorAndroidClientActivity.this.startActivity(intent);
 	}
 
 	@Override
