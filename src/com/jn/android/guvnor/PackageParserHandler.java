@@ -2,6 +2,7 @@ package com.jn.android.guvnor;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -13,14 +14,13 @@ import android.net.Uri;
 import android.util.Log;
 import org.json.JSONObject;
 
-public class PackageParserHandler implements ParserHandler<Package> {
+public class PackageParserHandler implements ParserHandler <HashMap<String, Package>>  {
 	private static final String _TAG = "PackageParserHandler";
 	
 	public PackageParserHandler() {}
 	
-	public Package[] parse(String content) throws ParserException {
-		//ArrayList<Package> packageList = new ArrayList<Package>();
-		Package[] packageList = null;
+	public HashMap<String, Package> parse(String content) throws ParserException {
+		HashMap<String, Package> packageMap = new HashMap<String, Package>();
 		
 		try {
 			JSONObject jo = new JSONObject(content);
@@ -28,7 +28,7 @@ public class PackageParserHandler implements ParserHandler<Package> {
 			
 			int len = packageArray.length();
 			if(len == 0) return null;
-			packageList = new Package[len];
+			
 			
 			for(int i = 0 ; i < len; i++) {
 				Package p = new Package();
@@ -40,7 +40,7 @@ public class PackageParserHandler implements ParserHandler<Package> {
 				p.checkInComment = packageObject.getString("checkInComment");
 				p.description = packageObject.getString("description");
 				p.version = packageObject.getLong("version");
-				
+			
 				/** Parse metadata */
 				JSONObject metadataObject = packageObject.getJSONObject("metadata");
 				String created = metadataObject.getString("created");
@@ -50,26 +50,34 @@ public class PackageParserHandler implements ParserHandler<Package> {
 				String lastContributor = metadataObject.getString("lastContributor");
 				p.addMetaData(uuid, created, lastModified, lastContributor, state);
 				
-				String assets = packageObject.getString("assets");
-				if(assets != null) {
-					/** This is ugly kludge */
-					if(assets.charAt(0) == '[') {	// we have array of assets
-						JSONArray arrayOfAssets = packageObject.getJSONArray("assets");
-						for(int j = 0; j < arrayOfAssets.length(); j++) {
-							p.assets.add(Uri.parse(arrayOfAssets.getString(j)));
+				if(created == null) created=""; 
+				if(lastModified == null) lastModified="";
+				if(state == null) state=""; 
+				if(uuid == null) uuid=""; 
+				if(lastContributor == null) lastContributor="";
+				
+				if(packageObject.has("assets")) {
+					String assets = packageObject.getString("assets");
+					if(assets != null) {
+						/** This is ugly kludge */
+						if(assets.charAt(0) == '[') {	// we have array of assets
+							JSONArray arrayOfAssets = packageObject.getJSONArray("assets");
+							for(int j = 0; j < arrayOfAssets.length(); j++) {
+								p.assets.add(Uri.parse(arrayOfAssets.getString(j)));
+							}
+						}
+						else {	/** we have just one (or zero) asset(s) */
+							p.assets.add(Uri.parse(assets));
 						}
 					}
-					else {	/** we have just one (or zero) asset(s) */
-						p.assets.add(Uri.parse(assets));
-					}
 				}
-				packageList[i] = p;
+				packageMap.put(uuid, p);
 			}
 		} 
 		catch(JSONException je) {
-			Log.v(_TAG, "JSONException " + je.getMessage());
+			Log.v(_TAG, "JSONException " + je.getMessage() + " cause: " + je.getCause());
 		}
-		return packageList;
+		return packageMap;
 	}
 	
 }

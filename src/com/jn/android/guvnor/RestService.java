@@ -42,15 +42,13 @@ public class RestService extends IntentService implements RestResultReceiver {
 		/** Run the worker thread here */
 		Log.v(_TAG,"onStartCommand");
 		ServiceHelper.ServiceCallback bc = intent.getParcelableExtra(CALLBACK_ID);
-	
-		Processor p = new Processor(getBaseContext(), "http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "application/json", false);
+		Processor p = new Processor(getBaseContext(), "http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "packages", false);
 
 		try {
-			p.setMediaType("application/json");
-			
+			p.setItemType("packages");
 		}
-		catch(UnknownMediaTypeException umte) {
-			
+		catch(UnknownItemTypeException umte) {
+			Log.v(_TAG,"UnknownItemTypeException");
 		}
 		p.start();
 		bc.doSomething(0);

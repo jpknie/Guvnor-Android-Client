@@ -4,8 +4,11 @@ import java.util.ArrayList;
 
 import android.net.Uri;
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.ContentUris;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.content.Context;
 import android.database.Cursor;
@@ -37,8 +40,8 @@ public class DataProvider extends ContentProvider {
 	public static final int PACKAGE_ID = 2;
 	
 	/** For metadata table */
-	public static final int METADATA = 2;
-	public static final int METADATA_ID = 3;
+	public static final int METADATA = 3;
+	public static final int METADATA_ID = 4;
 
 	public static final UriMatcher uriMatcher;
 	
@@ -105,13 +108,21 @@ public class DataProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
-		sqlBuilder.setTables(PACKAGE_TABLE_NAME);
-		
-		if(uriMatcher.match(uri) == PACKAGE_ID) {
-			sqlBuilder.appendWhere(C_PACKAGE_ID + " = " + uri.getPathSegments().get(1));
-		}
-		if(sortOrder == null || sortOrder == "") {
-				sortOrder = C_PACKAGE_ID;
+
+		switch(uriMatcher.match(uri)) {
+			case PACKAGES: {
+				sqlBuilder.setTables(PACKAGE_TABLE_NAME);
+			} break; 
+			case PACKAGE_ID: {
+				sqlBuilder.setTables(PACKAGE_TABLE_NAME);
+				sqlBuilder.appendWhere(C_PACKAGE_ID + " = " + uri.getPathSegments().get(1));
+				if(sortOrder == null || sortOrder == "") {
+					sortOrder = C_PACKAGE_ID;
+				}
+			} break;
+			case METADATA: {
+				sqlBuilder.setTables(METADATA_TABLE_NAME);
+			} break;
 		}
 		
 		Cursor cursor = sqlBuilder.query(guvnorDB, 
@@ -142,6 +153,20 @@ public class DataProvider extends ContentProvider {
 						C_PACKAGE_ID
 						+ " = " 
 						+ packageId
+						+ (!TextUtils.isEmpty(selection) ? " AND " + "( " + selection + ") " : ""),
+						selectionArgs);
+				break;
+			case METADATA:
+				count = guvnorDB.update(METADATA_TABLE_NAME, values, selection, selectionArgs);
+				break;	
+			
+			case METADATA_ID:
+				String metaId = uri.getPathSegments().get(1);
+				count = guvnorDB.update(METADATA_TABLE_NAME, 
+						values, 
+						C_METADATA_ID
+						+ " = " 
+						+ metaId
 						+ (!TextUtils.isEmpty(selection) ? " AND " + "( " + selection + ") " : ""),
 						selectionArgs);
 				break;
@@ -194,6 +219,17 @@ public class DataProvider extends ContentProvider {
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
 				selectionArgs);
 				break;
+			case METADATA:
+				count = guvnorDB.delete(METADATA_TABLE_NAME, selection, selectionArgs);
+			break;
+			case METADATA_ID:
+				String metaId = uri.getPathSegments().get(1);
+				count = guvnorDB.delete(METADATA_TABLE_NAME, _ID 
+				+ " = " 
+				+ metaId 
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+				selectionArgs);
+			break;	
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri);
 		}
@@ -201,25 +237,18 @@ public class DataProvider extends ContentProvider {
 		return count;
 	}
 	
-	//@Override
-	/*
-	public int bulkInsert(Uri uri, ContentValues[] values) {
-		
-	}
-	*/
-
-	/*
-	public long insertMetadata(Package.PackageMetaData metaData) {
-		ContentValues values = new ContentValues();
-		values.put("uuid", metaData.uuid);
-		values.put("created", metaData.created);
-		values.put("lastModified", metaData.lastModified);
-		values.put("lastContributor", metaData.lastContributor);
-		values.put("state", metaData.state);
-		return guvnorDB.insert(METADATA_TABLE_NAME, null, values);
-	}
-	*/
 	
+	
+	/*
+	@Override
+	public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
+			throws OperationApplicationException {
+			
+	}*/
+
+
+
+
 	static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
