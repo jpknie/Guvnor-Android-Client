@@ -1,9 +1,14 @@
 package com.jn.android.guvnor;
 
+import java.util.ArrayList;
+
 import android.net.Uri;
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.ContentUris;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,7 +21,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class DataProvider extends ContentProvider {
-
+	
 	/** Database related constants */
 	private static final String DATABASE_NAME = "guvnor_data.db";
 	private static final int DATABASE_VERSION = 1;
@@ -26,8 +31,8 @@ public class DataProvider extends ContentProvider {
 	/** Content provider constants */
 	public static final String _TAG = "ContentProvider";
 	public static final String PROVIDER_NAME = "com.jn.android.guvnor.dataprovider";
-	public static final Uri CONTENT_URI_PACKAGE = Uri.parse("content://" + PROVIDER_NAME + "packages");
-	public static final Uri CONTENT_URI_METADATA = Uri.parse("content://" + PROVIDER_NAME + "metadata");
+	public static final Uri CONTENT_URI_PACKAGE = Uri.parse("content://" + PROVIDER_NAME + "/packages");
+	public static final Uri CONTENT_URI_METADATA = Uri.parse("content://" + PROVIDER_NAME + "/metadata");
 	public static final String _ID = "_id";
 	
 	/** For package table */
@@ -35,43 +40,26 @@ public class DataProvider extends ContentProvider {
 	public static final int PACKAGE_ID = 2;
 	
 	/** For metadata table */
-	public static final int METADATA = 2;
-	public static final int METADATA_ID = 3;
+	public static final int METADATA = 3;
+	public static final int METADATA_ID = 4;
 
 	public static final UriMatcher uriMatcher;
 	
-	public enum Packages {
-		C_PACKAGE_ID ("_id"),
-		C_PACKAGE_TITLE ("title"),
-		C_PACKAGE_DESCRIPTION ("description"),
-		C_PACKAGE_CHECKINCOMMENT ("checkInComment"),
-		C_PACKAGE_VERSION ("version"),
-		C_PACKAGE_METAID ("metaID");	/** this if foreign key to metadata */
-		private final String columnName;
-		Packages(String columnName) {
-			this.columnName = columnName;
-		}
-		
-		public String getText() {
-			return this.columnName;
-		}
-	}
+	/** Package table constants */
+	public static final String C_PACKAGE_ID = "_id";
+	public static final String C_PACKAGE_TITLE = "title";
+	public static final String C_PACKAGE_DESCRIPTION = "description";
+	public static final String C_PACKAGE_CHECKINCOMMENT = "checkInComment";
+	public static final String C_PACKAGE_VERSION = "version";
 	
-	public enum Metadata {
-		C_METADATA_CREATED ("created"),
-		C_METADATA_LASTCONTRIB ("lastContributor"),
-		C_METADATA_LASTMODIFIED ("lastModified"),
-		C_METADATA_STATE ("state"),
-		C_METADATA_UUID ("uuid");
-		private final String columnName;
-		Metadata(String columnName) {
-			this.columnName = columnName;
-		}
-		public String getText() {
-			return this.columnName;
-		}
-	}
-
+	public static final String C_METADATA_ID = "_id";
+	public static final String C_METADATA_CREATED = "created";
+	public static final String C_METADATA_LASTCONTRIB = "lastContributor";
+	public static final String C_METADATA_LASTMODIFIED = "lastModified";
+	public static final String C_METADATA_STATE = "state";
+	public static final String C_METADATA_UUID = "uuid";
+	public static final String C_METADATA_FK = "fkId"; /** Foreign key => package table */
+	
 	public static final String STATUS_COLUMN = "status";
 	public static final String RESULT_COLUMN = "result";
 	
@@ -87,14 +75,13 @@ public class DataProvider extends ContentProvider {
 		uriMatcher.addURI(PROVIDER_NAME, "packages", PACKAGES);
 		uriMatcher.addURI(PROVIDER_NAME, "packages/#", PACKAGE_ID);
 		uriMatcher.addURI(PROVIDER_NAME, "metadata", METADATA);
-		uriMatcher.addURI(PROVIDER_NAME, "metadata/#", METADATA_ID);
+		uriMatcher.addURI(PROVIDER_NAME, "metadata/#", METADATA_ID); 
 	}
 	
 	private SQLiteDatabase guvnorDB;
 	
 	@Override
 	public boolean onCreate() {
-		
 		Context context = getContext();
 		DatabaseHelper dbHelper = new DatabaseHelper(context);
 		guvnorDB = dbHelper.getWritableDatabase();
@@ -103,7 +90,6 @@ public class DataProvider extends ContentProvider {
 		if (!guvnorDB.isReadOnly()) {
 	        guvnorDB.execSQL("PRAGMA foreign_keys = ON;");
 	    }
-		
 		return (guvnorDB == null) ? false: true;
 	}
 	
@@ -122,13 +108,21 @@ public class DataProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
-		sqlBuilder.setTables(PACKAGE_TABLE_NAME);
-		
-		if(uriMatcher.match(uri) == PACKAGE_ID) {
-			sqlBuilder.appendWhere(Packages.C_PACKAGE_ID.getText() + " = " + uri.getPathSegments().get(1));
-		}
-		if(sortOrder == null || sortOrder == "") {
-				sortOrder = Packages.C_PACKAGE_ID.getText();
+
+		switch(uriMatcher.match(uri)) {
+			case PACKAGES: {
+				sqlBuilder.setTables(PACKAGE_TABLE_NAME);
+			} break; 
+			case PACKAGE_ID: {
+				sqlBuilder.setTables(PACKAGE_TABLE_NAME);
+				sqlBuilder.appendWhere(C_PACKAGE_ID + " = " + uri.getPathSegments().get(1));
+				if(sortOrder == null || sortOrder == "") {
+					sortOrder = C_PACKAGE_ID;
+				}
+			} break;
+			case METADATA: {
+				sqlBuilder.setTables(METADATA_TABLE_NAME);
+			} break;
 		}
 		
 		Cursor cursor = sqlBuilder.query(guvnorDB, 
@@ -153,12 +147,26 @@ public class DataProvider extends ContentProvider {
 				break;	
 			
 			case PACKAGE_ID:
-				String subjectId = uri.getPathSegments().get(1);
+				String packageId = uri.getPathSegments().get(1);
 				count = guvnorDB.update(PACKAGE_TABLE_NAME, 
 						values, 
-						Packages.C_PACKAGE_ID.getText()
+						C_PACKAGE_ID
 						+ " = " 
-						+ subjectId
+						+ packageId
+						+ (!TextUtils.isEmpty(selection) ? " AND " + "( " + selection + ") " : ""),
+						selectionArgs);
+				break;
+			case METADATA:
+				count = guvnorDB.update(METADATA_TABLE_NAME, values, selection, selectionArgs);
+				break;	
+			
+			case METADATA_ID:
+				String metaId = uri.getPathSegments().get(1);
+				count = guvnorDB.update(METADATA_TABLE_NAME, 
+						values, 
+						C_METADATA_ID
+						+ " = " 
+						+ metaId
 						+ (!TextUtils.isEmpty(selection) ? " AND " + "( " + selection + ") " : ""),
 						selectionArgs);
 				break;
@@ -172,12 +180,27 @@ public class DataProvider extends ContentProvider {
 	
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		long rowID = guvnorDB.insert(PACKAGE_TABLE_NAME, "", values);
-		if(rowID > 0) {
-			Uri resultUri = ContentUris.withAppendedId(CONTENT_URI_PACKAGE, rowID);
-			getContext().getContentResolver().notifyChange(resultUri, null);
-			return resultUri;
+		switch(uriMatcher.match(uri)) {
+			case PACKAGES: {
+				long rowID = guvnorDB.insert(PACKAGE_TABLE_NAME, "", values);
+				if(rowID > 0) {
+					Uri resultUri = ContentUris.withAppendedId(CONTENT_URI_PACKAGE, rowID);
+					getContext().getContentResolver().notifyChange(resultUri, null);
+					return resultUri;
+				}
+			} break;
+			case METADATA: {
+				long rowID = guvnorDB.insert(METADATA_TABLE_NAME, "", values);
+				if(rowID > 0) {
+					Uri resultUri = ContentUris.withAppendedId(CONTENT_URI_METADATA, rowID);
+					getContext().getContentResolver().notifyChange(resultUri, null);
+					return resultUri;
+				}
+			} break;
+			default:
+				throw new IllegalArgumentException("Illegal URI: " + uri);		
 		}
+			
 		throw new SQLException("Failed to insert row into " + uri);
 	}
 	
@@ -196,6 +219,17 @@ public class DataProvider extends ContentProvider {
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
 				selectionArgs);
 				break;
+			case METADATA:
+				count = guvnorDB.delete(METADATA_TABLE_NAME, selection, selectionArgs);
+			break;
+			case METADATA_ID:
+				String metaId = uri.getPathSegments().get(1);
+				count = guvnorDB.delete(METADATA_TABLE_NAME, _ID 
+				+ " = " 
+				+ metaId 
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+				selectionArgs);
+			break;	
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri);
 		}
@@ -203,6 +237,18 @@ public class DataProvider extends ContentProvider {
 		return count;
 	}
 	
+	
+	
+	/*
+	@Override
+	public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
+			throws OperationApplicationException {
+			
+	}*/
+
+
+
+
 	static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -210,30 +256,30 @@ public class DataProvider extends ContentProvider {
 		
 		@Override
 		public void onCreate(SQLiteDatabase sqldb) {
-			sqldb.execSQL("CREATE TABLE " + METADATA_TABLE_NAME + "( " 
-			+ Metadata.C_METADATA_UUID.getText() + "TEXT, " 
-			+ Metadata.C_METADATA_CREATED.getText() + "TEXT, " 
-			+ Metadata.C_METADATA_LASTMODIFIED.getText() + "TEXT, "
-			+ Metadata.C_METADATA_LASTCONTRIB.getText() + "TEXT, "
-			+ Metadata.C_METADATA_STATE.getText() + "TEXT );"
-			);
 			
 			/** Create package table */
 			sqldb.execSQL("CREATE TABLE " + PACKAGE_TABLE_NAME + "( " 
-			+ Packages.C_PACKAGE_ID.getText() + " INTEGER PRIMARY KEY,"			
-			+ Packages.C_PACKAGE_TITLE.getText() + " TEXT,"
-			+ Packages.C_PACKAGE_DESCRIPTION.getText() + " TEXT,"
-			+ Packages.C_PACKAGE_CHECKINCOMMENT.getText() + " TEXT,"
-			+ Packages.C_PACKAGE_VERSION.getText() + " INTEGER, "
-			+ Packages.C_PACKAGE_METAID.getText() + " INTEGER,"
-			+ "FOREIGN KEY" 
-				+ "("  
-				+ Packages.C_PACKAGE_METAID.getText()
-				+ ")"
-				+ " REFERENCES " 
-				+ METADATA_TABLE_NAME 
-				+ "(_id)" 
-				+ " ON DELETE CASCADE"
+			+ C_PACKAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "			
+			+ C_PACKAGE_TITLE + " TEXT, "
+			+ C_PACKAGE_DESCRIPTION + " TEXT, "
+			+ C_PACKAGE_CHECKINCOMMENT + " TEXT, "
+			+ C_PACKAGE_VERSION + " INTEGER "
+			+ ");"
+			);
+			
+			/** Create metadata table */
+			sqldb.execSQL("CREATE TABLE " + METADATA_TABLE_NAME + "( " 
+			+ C_METADATA_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ C_METADATA_UUID + " TEXT, " 
+			+ C_METADATA_CREATED + " TEXT, " 
+			+ C_METADATA_LASTMODIFIED + " TEXT, "
+			+ C_METADATA_LASTCONTRIB + " TEXT, "
+			+ C_METADATA_STATE + " TEXT, " 
+			+ C_METADATA_FK + " INTEGER, "
+			+ "FOREIGN KEY " 
+			+ "(" + C_METADATA_FK + ")"
+			+ " REFERENCES " + PACKAGE_TABLE_NAME + "(" + C_PACKAGE_ID + ")"
+			+ " ON DELETE CASCADE "
 			+ ");"
 			);
 		}

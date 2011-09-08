@@ -64,8 +64,6 @@ public class ServiceHelper {
 	}
 	
 	public ServiceHelper() {
-		restService = new RestService();
-		restService.onCreate();
 	}
 	
 	public void setContext(Context context) {
@@ -82,6 +80,10 @@ public class ServiceHelper {
 	
 	/** this method will start the service */
 	public void doService() {
+		if(restService == null) {
+			restService = new RestService();
+			restService.onCreate();
+		}
 		Intent intent = new Intent(context, RestService.class);
 		intent.putExtra(RestService.CALLBACK_ID, new ServiceCallback());
 		context.startService(intent);

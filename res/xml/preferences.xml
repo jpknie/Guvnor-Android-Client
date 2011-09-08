@@ -28,7 +28,7 @@
         <EditTextPreference 
         	android:title="Server address" 
         	android:key="server_string"
-        	android:defaultValue="http://">
+        	android:defaultValue="http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0">
         </EditTextPreference>
         <EditTextPreference
         	android:title="Server port"

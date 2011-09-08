@@ -20,7 +20,7 @@ import android.util.Log;
 
 public class RestMethod {
 	public static final String _TAG = "RestMethod";
-	public String acceptType;
+	public static String acceptType = "application/json";
 	
 	private static String convertStreamToString(InputStream is) {
       
@@ -44,7 +44,7 @@ public class RestMethod {
         return sb.toString();
     }
 
-	public static String doGet(String url, String acceptType, boolean useGzip) throws ClientProtocolException, IOException, URISyntaxException {
+	public static String doGet(String url, boolean useGzip) throws ClientProtocolException, IOException, URISyntaxException {
 		try {
 			URI uri = new URI(url);
 			HttpGet getMethod = new HttpGet(uri);
