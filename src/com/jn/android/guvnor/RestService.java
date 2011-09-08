@@ -1,5 +1,7 @@
 package com.jn.android.guvnor;
+
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -9,11 +11,14 @@ interface RestResultReceiver {
 }
 
 public class RestService extends IntentService implements RestResultReceiver {
-	
+
 	public static final String _TAG = "RestService";
 	
 	/** Identifier for callback in the bundle extra */
 	public static final String CALLBACK_ID = "callback";
+
+	/** Some preferences */
+	private static String serverUrl;
 	
 	/** State flags for service */
 	public enum States {
@@ -25,10 +30,10 @@ public class RestService extends IntentService implements RestResultReceiver {
 		super("RESTService");
 	}
 	
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 	}
 
 	@Override
@@ -42,7 +47,8 @@ public class RestService extends IntentService implements RestResultReceiver {
 		/** Run the worker thread here */
 		Log.v(_TAG,"onStartCommand");
 		ServiceHelper.ServiceCallback bc = intent.getParcelableExtra(CALLBACK_ID);
-		Processor p = new Processor(getBaseContext(), "http://192.168.1.101:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "packages", false);
+		
+		Processor p = new Processor(getBaseContext(), "http://192.168.1.103:8080/guvnor-5.2.0.Final-tomcat-6.0/rest/packages", "packages", false, getContentResolver());
 
 		try {
 			p.setItemType("packages");
@@ -57,5 +63,4 @@ public class RestService extends IntentService implements RestResultReceiver {
 	public void onResultReceived(int resultCode) {
 		
 	}
-	
 }

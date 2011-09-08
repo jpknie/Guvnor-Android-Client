@@ -3,7 +3,10 @@
     <string name="hello">Hello World, GuvnorAndroidClientActivity!</string>
     <string name="app_name">Guvnor Android Client</string>
     
-    <!-- Databse string resources -->
+    <!-- path constants for guvnor REST API -->
+    <string name="package_path">/rest/packages</string>
+    
+    <!-- Database string resources -->
     <string name="package_table_name">packages</string>
     <string name="metadata_table_name">metadata</string>
     

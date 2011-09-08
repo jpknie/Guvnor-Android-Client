@@ -29,7 +29,6 @@ public class PackageParserHandler implements ParserHandler <HashMap<String, Pack
 			int len = packageArray.length();
 			if(len == 0) return null;
 			
-			
 			for(int i = 0 ; i < len; i++) {
 				Package p = new Package();
 				p.assets = new LinkedHashSet<Uri>();

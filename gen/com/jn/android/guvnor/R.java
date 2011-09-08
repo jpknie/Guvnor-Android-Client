@@ -42,17 +42,20 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f060001;
-        public static final int column_package_checkInComment=0x7f060006;
-        public static final int column_package_description=0x7f060005;
+        public static final int column_package_checkInComment=0x7f060007;
+        public static final int column_package_description=0x7f060006;
         /**  Package table's columns 
          */
-        public static final int column_package_title=0x7f060004;
-        public static final int column_package_version=0x7f060007;
+        public static final int column_package_title=0x7f060005;
+        public static final int column_package_version=0x7f060008;
         public static final int hello=0x7f060000;
-        public static final int metadata_table_name=0x7f060003;
-        /**  Databse string resources 
+        public static final int metadata_table_name=0x7f060004;
+        /**  path constants for guvnor REST API 
          */
-        public static final int package_table_name=0x7f060002;
+        public static final int package_path=0x7f060002;
+        /**  Database string resources 
+         */
+        public static final int package_table_name=0x7f060003;
     }
     public static final class xml {
         public static final int preferences=0x7f040000;

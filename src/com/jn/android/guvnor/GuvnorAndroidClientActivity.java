@@ -26,7 +26,6 @@ public class GuvnorAndroidClientActivity extends ListActivity implements ResultH
 			DataProvider.C_PACKAGE_DESCRIPTION
 	};
 	
-	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
