@@ -124,7 +124,6 @@ public class Processor extends Thread {
 		
 		buildUpdateLists(deleteList, updateList, insertList, serverUuidSet, clientUuidSet, packagesFromServer);
 		PersistentResourceManager prm = PersistentResourceManager.getInstance();
-		prm.setContentResolver(contentResolver);
 		prm.handleUpdates(updateList, deleteList, insertList);
 	}
 	
