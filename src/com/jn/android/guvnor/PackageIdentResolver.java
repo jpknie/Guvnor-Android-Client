@@ -63,7 +63,6 @@ public class PackageIdentResolver {
 		
 		while(cursor.moveToNext()) {
 			uuidPackageIdMap.put(cursor.getString(1), cursor.getString(2));
-			Log.v(_TAG,"added mapping " + cursor.getString(1) + "->" + cursor.getString(2));
 		}
 		cursor.close();
 		mapped = true;

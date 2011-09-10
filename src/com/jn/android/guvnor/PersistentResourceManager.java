@@ -1,9 +1,6 @@
 package com.jn.android.guvnor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.OperationApplicationException;
@@ -11,7 +8,6 @@ import android.os.RemoteException;
 
 /** PersistentResourceManager is responsible to update, delete and insert PersistentResources into ContentProvider */
 public class PersistentResourceManager {
-	private PackageIdentResolver packageIdentResolver = PackageIdentResolver.getInstance();
 	private static ContentResolver contentResolver;
 	private static ArrayList<ContentProviderOperation> updateOperations;
 	
@@ -20,7 +16,6 @@ public class PersistentResourceManager {
 	}
 	
 	public PersistentResourceManager() {
-		packageIdentResolver.getInstance();
 	}
 	
 	public static void setContentResolver(ContentResolver cr) {
@@ -50,6 +45,7 @@ public class PersistentResourceManager {
 	private static void insertPersistentResources( ArrayList<PersistentResource> resourcesToInsert ) {	
 		for(PersistentResource resourceToInsert: resourcesToInsert) {		
 			resourceToInsert.addInsertOperationTo(updateOperations);
+			
 		}
 
 	}
