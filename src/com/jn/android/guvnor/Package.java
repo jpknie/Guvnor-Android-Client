@@ -18,10 +18,10 @@ public class Package implements PersistentResource {
 	public Uri binaryLink;
 	public Uri sourceLink;
 	public Set<Uri> assets;
-	public Package.PackageMetaData metaData;
+	public Package.PackageMetadata metadata;
 	
 	public Package() {
-		metaData = new Package.PackageMetaData();
+		metadata = new Package.PackageMetadata();
 	}
 	
 	public static Package buildFromUuid(String uuid) {
@@ -31,21 +31,21 @@ public class Package implements PersistentResource {
 	}
 	
 	public void addMetaData(String uuid, String created, String lastModified, String lastContributor, String state) {
-		metaData.uuid = uuid;
-		metaData.created = created;
-		metaData.lastModified = lastModified;
-		metaData.lastContributor = lastContributor;
-		metaData.state = state;
+		metadata.uuid = uuid;
+		metadata.created = created;
+		metadata.lastModified = lastModified;
+		metadata.lastContributor = lastContributor;
+		metadata.state = state;
 	}
 	
 	public String getUuid() {
-		return metaData.uuid;
+		return metadata.uuid;
 	}
 	
 	@Override
 	public void addUpdateOperationTo(List<ContentProviderOperation> operationList) {	
 		PackageIdentResolver packageIdentResolver = PackageIdentResolver.getInstance();
-		String packageId = packageIdentResolver.getIdByUuid(metaData.uuid);
+		String packageId = packageIdentResolver.getIdByUuid(metadata.uuid);
 		operationList.add(ContentProviderOperation.newUpdate(DataProvider.CONTENT_URI_PACKAGE)
 				.withSelection(DataProvider.C_PACKAGE_ID + "=?", new String[]{String.valueOf(packageId)})
 				.withValue(DataProvider.C_PACKAGE_TITLE, title)
@@ -54,11 +54,11 @@ public class Package implements PersistentResource {
 				.withValue(DataProvider.C_PACKAGE_CHECKINCOMMENT, checkInComment)
 				.build());
 		operationList.add(ContentProviderOperation.newUpdate(DataProvider.CONTENT_URI_METADATA)
-				.withSelection(DataProvider.C_METADATA_UUID + "=?", new String[]{String.valueOf(metaData.uuid)})
-				.withValue(DataProvider.C_METADATA_LASTMODIFIED, metaData.lastModified)
-				.withValue(DataProvider.C_METADATA_STATE, metaData.state)
-				.withValue(DataProvider.C_METADATA_LASTCONTRIB, metaData.lastContributor)
-				.withValue(DataProvider.C_METADATA_CREATED, metaData.created)
+				.withSelection(DataProvider.C_METADATA_UUID + "=?", new String[]{String.valueOf(metadata.uuid)})
+				.withValue(DataProvider.C_METADATA_LASTMODIFIED, metadata.lastModified)
+				.withValue(DataProvider.C_METADATA_STATE, metadata.state)
+				.withValue(DataProvider.C_METADATA_LASTCONTRIB, metadata.lastContributor)
+				.withValue(DataProvider.C_METADATA_CREATED, metadata.created)
 				.build());
 	}
 
@@ -74,11 +74,11 @@ public class Package implements PersistentResource {
 		i++;
 		operationList.add(ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_METADATA)
 				.withValueBackReference(DataProvider.C_METADATA_FK, i - 1)
-				.withValue(DataProvider.C_METADATA_UUID, metaData.uuid)
-				.withValue(DataProvider.C_METADATA_LASTMODIFIED, metaData.lastModified)
-				.withValue(DataProvider.C_METADATA_STATE, metaData.state)
-				.withValue(DataProvider.C_METADATA_LASTCONTRIB, metaData.lastContributor)
-				.withValue(DataProvider.C_METADATA_CREATED, metaData.created)
+				.withValue(DataProvider.C_METADATA_UUID, metadata.uuid)
+				.withValue(DataProvider.C_METADATA_LASTMODIFIED, metadata.lastModified)
+				.withValue(DataProvider.C_METADATA_STATE, metadata.state)
+				.withValue(DataProvider.C_METADATA_LASTCONTRIB, metadata.lastContributor)
+				.withValue(DataProvider.C_METADATA_CREATED, metadata.created)
 				.build());
 		i++;
 	}
@@ -86,14 +86,14 @@ public class Package implements PersistentResource {
 	@Override
 	public void addDeleteOperationTo(List<ContentProviderOperation> operationList) {
 		PackageIdentResolver packageIdentResolver = PackageIdentResolver.getInstance();
-		String packageIdToDelete = packageIdentResolver.getIdByUuid(metaData.uuid);
+		String packageIdToDelete = packageIdentResolver.getIdByUuid(metadata.uuid);
 		operationList.add(ContentProviderOperation.newDelete(DataProvider.CONTENT_URI_METADATA)
 				.withSelection(DataProvider.C_METADATA_FK + "=?", new String[]{String.valueOf(packageIdToDelete)}).build());
 		operationList.add(ContentProviderOperation.newDelete(DataProvider.CONTENT_URI_PACKAGE)
 				.withSelection(DataProvider.C_PACKAGE_ID + "=?", new String[]{String.valueOf(packageIdToDelete)}).build());
 	}
 
-	class PackageMetaData {
+	class PackageMetadata {
 		public String uuid;
 		public String created;
 		public String lastModified;

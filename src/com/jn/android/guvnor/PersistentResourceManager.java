@@ -45,9 +45,7 @@ public class PersistentResourceManager {
 	private static void insertPersistentResources( ArrayList<PersistentResource> resourcesToInsert ) {	
 		for(PersistentResource resourceToInsert: resourcesToInsert) {		
 			resourceToInsert.addInsertOperationTo(updateOperations);
-			
 		}
-
 	}
 	
 	private static void updatePersistentResources( ArrayList<PersistentResource> resourcesToUpdate ) {
